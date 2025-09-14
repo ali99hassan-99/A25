@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قاعدة بيانات الهواتف</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+    :root {
+      --bg-color: #121828;
+      --primary-color: #00f2ea;
+      --container-bg: rgba(30, 41, 59, 0.6);
+      --text-color: #e2e8f0;
+      --label-color: #94a3b8;
+      --border-color: rgba(148, 163, 184, 0.2);
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .background-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+            radial-gradient(circle at 15% 25%, var(--primary-color), transparent 20%),
+            radial-gradient(circle at 85% 75%, #38bdf8, transparent 20%);
+        filter: blur(120px);
+        opacity: 0.4;
+        animation: moveShapes 15s alternate infinite ease-in-out;
+    }
+
+    @keyframes moveShapes {
+        from { transform: translate(0, 0); }
+        to { transform: translate(50px, -50px); }
+    }
+
+    .container {
+      background: var(--container-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 35px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #fff;
+      margin-bottom: 10px;
+      font-size: 2em;
+      text-shadow: 0 0 10px var(--primary-color);
+    }
+
+    .status-message {
+        color: var(--label-color);
+        margin-bottom: 25px;
+        font-size: 1.1em;
+        min-height: 25px;
+    }
+
+    .file-input-area {
+        border: 2px dashed var(--border-color);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .file-input-area:hover {
+        background-color: rgba(0, 242, 234, 0.05);
+        border-color: var(--primary-color);
+    }
+
+    .file-input-area label {
+        color: var(--primary-color);
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 14px;
+      background-color: rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1em;
+      color: var(--text-color);
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .search-box:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
+    }
+
+    .search-button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary-color);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .search-button:hover {
+      background-color: #00c7bf;
+      box-shadow: 0 0 20px rgba(0, 242, 234, 0.5);
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 1.1em;
+      text-align: right;
+    }
+
+    #result ul {
+        list-style-type: none;
+        padding-right: 0;
+        margin-top: 10px;
+    }
+
+    #result li {
+        background-color: rgba(0,0,0,0.2);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-right: 4px solid var(--primary-color);
+    }
+
+    #result.error {
+        color: #ff8a8a;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .clear-button {
+        background: none;
+        border: 1px solid #ff8a8a;
+        color: #ff8a8a;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .clear-button:hover {
+        background-color: #ff8a8a;
+        color: var(--bg-color);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes"></div>
+
+  <div class="container">
+    <h1>قاعدة بيانات الهواتف</h1>
+    <p class="status-message" id="statusMessage">في انتظار تحميل ملف الإكسل...</p>
+
+    <div class="file-input-area" id="fileInputArea">
+        <label for="excelFile">اضغط هنا لاختيار ملف الإكسل (لأول مرة فقط)</label>
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
+    </div>
+
+    <input type="text" id="phoneName" class="search-box" placeholder="اكتب جزءًا من اسم الهاتف..." disabled>
+    <button onclick="searchPhone()" id="searchButton" class="search-button" disabled>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+      بحث
+    </button>
+
+    <div id="result"></div>
+    <button id="clearDataBtn" class="clear-button" style="display: none;">مسح البيانات والبدء من جديد</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+  <script>
+    let excelData = [];
+    const statusMessage = document.getElementById('statusMessage');
+    const fileInputArea = document.getElementById('fileInputArea');
+    const searchInput = document.getElementById('phoneName');
+    const searchButton = document.getElementById('searchButton');
+    const resultDiv = document.getElementById('result');
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    const excelFileInput = document.getElementById('excelFile');
+
+    function enableSearch() {
+        searchInput.disabled = false;
+        searchButton.disabled = false;
+        fileInputArea.style.display = 'none';
+        clearDataBtn.style.display = 'inline-block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedData = localStorage.getItem('savedExcelData');
+        if (savedData) {
+            console.log("Loading data from Local Storage...");
+            excelData = JSON.parse(savedData);
+            statusMessage.textContent = `✅ تم تحميل البيانات المحفوظة (${excelData.length} سجل). جاهز للبحث.`;
+            enableSearch();
+        } else {
+            statusMessage.textContent = 'الرجاء اختيار ملف إكسل للبدء.';
+        }
+    });
+
+    excelFileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = 'AAAA';
+
+            if (workbook.SheetNames.includes(sheetName)) {
+                const worksheet = workbook.Sheets[sheetName];
+                excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // حفظ البيانات في Local Storage
+                localStorage.setItem('savedExcelData', JSON.stringify(excelData));
+
+                statusMessage.textContent = `✅ تم تحميل وحفظ الملف بنجاح (${excelData.length} سجل).`;
+                resultDiv.innerHTML = '';
+                enableSearch();
+            } else {
+                statusMessage.textContent = `خطأ: لم يتم العثور على ورقة عمل بالاسم "AAAA"`;
+                resultDiv.className = 'error';
+                excelData = [];
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function searchPhone() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      resultDiv.innerHTML = '';
+      resultDiv.className = '';
+
+      if (searchTerm === '') {
+        resultDiv.textContent = 'الرجاء إدخال اسم هاتف للبحث عنه.';
+        resultDiv.classList.add('error');
+        return;
+      }
+
+      const results = excelData.filter(row =>
+          row && row[1] && row[1].toString().trim().toLowerCase().includes(searchTerm)
+      ).map(row => ({ name: row[1], serial: row[0] }));
+
+      if (results.length > 0) {
+        let htmlOutput = `<ul>`;
+        results.forEach(item => {
+            htmlOutput += `<li><strong>الهاتف:</strong> ${item.name} <br> <strong>التسلسل:</strong> ${item.serial}</li>`;
+        });
+        htmlOutput += '</ul>';
+        resultDiv.innerHTML = htmlOutput;
+      } else {
+        resultDiv.textContent = 'لم يتم العثور على أي نتيجة مطابقة.';
+        resultDiv.classList.add('error');
+      }
+    }
+
+    clearDataBtn.addEventListener('click', () => {
+        if (confirm('هل أنت متأكد أنك تريد مسح البيانات المحفوظة واختيار ملف جديد؟')) {
+            localStorage.removeItem('savedExcelData');
+            location.reload(); // أسهل طريقة لإعادة تهيئة الصفحة
+        }
+    });
+
+  </script>
+
+</body>
+</html>
