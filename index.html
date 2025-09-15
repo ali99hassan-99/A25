@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>قاعدة بيانات الهواتف</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00f2ea">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 
@@ -24,14 +26,14 @@
       padding: 20px;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
-      overflow: hidden;
+      overflow-y: auto; /* ✅ تم التعديل: السماح بالتمرير */
       position: relative;
     }
 
     .background-shapes {
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
@@ -61,6 +63,7 @@
       width: 100%;
       max-width: 500px;
       text-align: center;
+      margin-top: 40px;
     }
 
     h1 {
@@ -199,10 +202,7 @@
 
     <input type="text" id="phoneName" class="search-box" placeholder="اكتب جزءًا من اسم الهاتف..." disabled>
     <button onclick="searchPhone()" id="searchButton" class="search-button" disabled>
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-      </svg>
-      بحث
+      🔍 بحث
     </button>
 
     <div id="result"></div>
@@ -231,7 +231,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         const savedData = localStorage.getItem('savedExcelData');
         if (savedData) {
-            console.log("Loading data from Local Storage...");
             excelData = JSON.parse(savedData);
             statusMessage.textContent = `✅ تم تحميل البيانات المحفوظة (${excelData.length} سجل). جاهز للبحث.`;
             enableSearch();
@@ -253,10 +252,7 @@
             if (workbook.SheetNames.includes(sheetName)) {
                 const worksheet = workbook.Sheets[sheetName];
                 excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                // حفظ البيانات في Local Storage
                 localStorage.setItem('savedExcelData', JSON.stringify(excelData));
-
                 statusMessage.textContent = `✅ تم تحميل وحفظ الملف بنجاح (${excelData.length} سجل).`;
                 resultDiv.innerHTML = '';
                 enableSearch();
@@ -300,10 +296,16 @@
     clearDataBtn.addEventListener('click', () => {
         if (confirm('هل أنت متأكد أنك تريد مسح البيانات المحفوظة واختيار ملف جديد؟')) {
             localStorage.removeItem('savedExcelData');
-            location.reload(); // أسهل طريقة لإعادة تهيئة الصفحة
+            location.reload();
         }
     });
 
+    // ✅ تسجيل Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(() => {
+        console.log("✅ Service Worker Registered");
+      });
+    }
   </script>
 
 </body>
