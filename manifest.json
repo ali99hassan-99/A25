@@ -1,20 +1,19 @@
 {
-  "name": "سجل اللواصق",
-  "short_name": "احلى الاسعار",
-  "description": "تطبيق لإدارة اللواصق بسهولة",
+  "name": "قاعدة بيانات الهواتف",
+  "short_name": "الهواتف",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#22c55e",
+  "background_color": "#121828",
+  "theme_color": "#00f2ea",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
